@@ -1,9 +1,11 @@
 import express from "express";
+import cookieParser from "cookie-parser";
 import router from "./route.js";
 import dbconnect from "./database.js";
 
 const server = express();
 server.use(express.json());
+server.use(cookieParser())
 server.use(router);
 
 dbconnect();
