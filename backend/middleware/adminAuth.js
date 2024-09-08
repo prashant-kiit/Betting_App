@@ -5,7 +5,7 @@ const adminAuth = async (req, res, next) => {
     jwt.verify(req.cookies.bet_app_token, "XYZ1234");
     next();
   } catch (error) {
-    console.error(error);
+    res.clearCookie("bet_app_token");
     return res
       .status(401)
       .send(

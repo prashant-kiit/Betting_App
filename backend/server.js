@@ -2,9 +2,9 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import dbconnect from "./database.js";
-import adminLogin from "./login.js";
-import adminRoute from "./route.js";
-import adminAuth from "./adminAuth.js";
+import adminLogin from "./admin/adminLogin.js";
+import adminRoute from "./admin/adminRoute.js";
+import adminAuth from "./middleware/adminAuth.js";
 
 const server = express();
 server.use(

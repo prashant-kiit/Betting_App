@@ -11,6 +11,8 @@ db.getCollection("admins").find({
   },
 });
 
+db.getCollection("matches").find({});
+
 db.getCollection("sales").insertMany([
   {
     item: "abc",
