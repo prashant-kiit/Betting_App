@@ -4,16 +4,16 @@ import Admin from "../model/admin.js";
 
 const router = Router();
 
+// validate
+// service
+
 router.get("/login", async (req, res) => {
   try {
-    if (req.query.username === undefined)
-      return res.status(401).send("Username not received");
-
     const admin = await Admin.findOne({
       username: req.query.username,
     });
 
-    if (!admin.length) return res.status(401).send("Username not found");
+    if (!admin) return res.status(401).send("Username not found");
 
     if (!(admin.password === req.query.password))
       return res.status(401).send("Password is incorrect");

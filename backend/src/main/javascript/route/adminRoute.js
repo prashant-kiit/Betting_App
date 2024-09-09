@@ -1,49 +1,51 @@
 import { Router } from "express";
-import Match from "../model/match.js";
+import { saveMatch, setMatchStatus } from "../service/adminService.js";
 
 const router = Router();
 
+// validate
+// service
+
 router.post("/createMatch", async (req, res) => {
   try {
-    const match = new Match({
-      team1: req.body.team1,
-      team2: req.body.team2,
-      minimumAmount: req.body.minimumAmount,
-    });
+    const matchId = await saveMatch(req);
 
-    await match.save();
-
-    return res.status(200).send(match.id);
+    return res.status(200).send(matchId);
   } catch (error) {
-    return res.status(400).send(error.message);
+    return res.status(500).send(error.message);
+  }
+});
+
+router.patch("/openMatch/:id", async (req, res) => {
+  try {
+    const match = setMatchStatus(req, "ACTIVE");
+
+    if (!match) return res.status(404).send("Match Not found");
+
+    return res.status(200).send("Match activated");
+  } catch (error) {
+    return res.status(500).send(error.message);
   }
 });
 
 router.patch("/closeMatch/:id", async (req, res) => {
   try {
-    const match = await Match.findOneAndUpdate(
-      {
-        _id: new Object(req.params.id),
-      },
-      {
-        status: "INACTIVE",
-      }
-    );
+    const match = setMatchStatus(req, "INACTIVE");
 
     if (!match) return res.status(404).send("Match Not found");
 
-    return res.status(200).send("Match updated");
+    return res.status(200).send("Match inactivated");
   } catch (error) {
-    return res.status(400).send(error.message);
+    return res.status(500).send(error.message);
   }
 });
 
 router.get("/logout", async (req, res) => {
   try {
-    res.clearCookie("Match_app_token");
+    res.clearCookie("bet_app_token");
     return res.status(200).send("Admin logged out");
   } catch (error) {
-    return res.status(400).send(error.message);
+    return res.status(500).send(error.message);
   }
 });
 

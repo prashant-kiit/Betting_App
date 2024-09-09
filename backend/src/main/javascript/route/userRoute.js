@@ -1,21 +1,46 @@
 import { Router } from "express";
-import Bet from "../model/bet.js";
+import {
+  getMatch,
+  ifLessThanMinimumAmount,
+  saveBet,
+  patchMatch,
+  ifMatchActive,
+  isSchemaValid,
+} from "../service/userService.js";
 
 const router = Router();
 
 router.post("/placeBet", async (req, res) => {
   try {
-    const bet = new Bet({
-      matchId: req.body.matchId,
-      betOn: req.body.betOn,
-      amount: req.body.amount,
-    });
+    const schemaValidationErrors = isSchemaValid(req.body);
 
-    await bet.save();
+    if (schemaValidationErrors)
+      return res
+        .status(400)
+        .send(`The data schema is not valid. ${schemaValidationErrors}`);
 
-    return res.status(200).send(bet.id);
+    const match = await getMatch(req);
+
+    if (!match) return res.status(400).send("The match is not found");
+
+    if (!ifMatchActive(match))
+      return res.status(400).send("The match is not active");
+
+    if (ifLessThanMinimumAmount(req, match))
+      return res
+        .status(400)
+        .send(`The bet amount should aleast be ${match.minimumAmount}`);
+
+    const isPatchingDone = await patchMatch(req, match);
+
+    if (!isPatchingDone)
+      return res.status(400).send("The betOn value is invalid");
+
+    const betId = await saveBet(req);
+
+    return res.status(200).send(betId);
   } catch (error) {
-    return res.status(400).send(error.message);
+    return res.status(500).send(error.message);
   }
 });
 
