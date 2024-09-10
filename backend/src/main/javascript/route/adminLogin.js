@@ -7,9 +7,6 @@ import {
 } from "../service/adminService.js";
 const router = Router();
 
-// validate
-// service
-
 router.get("/login", async (req, res) => {
   try {
     const schemaValidationErrors = isAdminSchemaValid(req.query);

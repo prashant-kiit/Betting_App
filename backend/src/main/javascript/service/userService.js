@@ -67,8 +67,6 @@ export const getMatch = async (req) => {
     _id: new Types.ObjectId(`${req.body.matchId}`),
   });
 
-  console.log(match);
-
   return match;
 };
 

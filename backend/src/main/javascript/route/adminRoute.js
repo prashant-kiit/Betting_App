@@ -7,9 +7,6 @@ import {
 
 const router = Router();
 
-// validate
-// service
-
 router.post("/createMatch", async (req, res) => {
   try {
     const schemaValidationErrors = isMatchSchemaValid(req.body);

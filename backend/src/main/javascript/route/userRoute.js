@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { userAuth } from "../middleware/userAuth.js";
 import {
   getMatch,
   ifLessThanMinimumAmount,
@@ -10,7 +11,32 @@ import {
 
 const router = Router();
 
-router.post("/placeBet", async (req, res) => {
+router.get("/status", (req, res) => {
+  try {
+    // console.log(req.oidc.isAuthenticated());
+    // console.log(req.oidc.user);
+    return res
+      .status(200)
+      .send(req.oidc.isAuthenticated() ? "User logged in" : "User logged out");
+  } catch (error) {
+    return res.status(500).send(error.message);
+  }
+});
+
+router.get("/", userAuth, async (req, res) => {
+  try {
+    return res.status(301).redirect("http://localhost:3000/user/dashboard");
+  } catch (error) {
+    return res.status(500).send(error.message);
+  }
+});
+
+router.get("/test", userAuth, (req, res) => {
+  console.log("Test Done");
+  return res.status(200).send("Test Done");
+});
+
+router.post("/placeBet", userAuth, async (req, res) => {
   try {
     const schemaValidationErrors = isBetSchemaValid(req.body);
 
