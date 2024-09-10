@@ -5,14 +5,14 @@ import {
   saveBet,
   patchMatch,
   ifMatchActive,
-  isSchemaValid,
+  isBetSchemaValid,
 } from "../service/userService.js";
 
 const router = Router();
 
 router.post("/placeBet", async (req, res) => {
   try {
-    const schemaValidationErrors = isSchemaValid(req.body);
+    const schemaValidationErrors = isBetSchemaValid(req.body);
 
     if (schemaValidationErrors)
       return res
@@ -21,7 +21,7 @@ router.post("/placeBet", async (req, res) => {
 
     const match = await getMatch(req);
 
-    if (!match) return res.status(400).send("The match is not found");
+    if (!match) return res.status(404).send("The match is not found");
 
     if (!ifMatchActive(match))
       return res.status(400).send("The match is not active");

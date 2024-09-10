@@ -7,8 +7,6 @@ export const patchMatch = async (req, match) => {
   let matchPatchBody = {};
 
   if (req.body.betOn === match.team1) {
-    console.log("cond 1");
-
     const new_team1_abs_amt = match.team1_abs_amt + req.body.amount;
     const new_total_abs_amt =
       new_team1_abs_amt + match.team2_abs_amt + match.draw_abs_amt;
@@ -23,8 +21,6 @@ export const patchMatch = async (req, match) => {
       draw_rel_amt: new_draw_rel_amt,
     };
   } else if (req.body.betOn === match.team2) {
-    console.log("cond 2");
-
     const new_team2_abs_amt = match.team2_abs_amt + req.body.amount;
     const new_total_abs_amt =
       match.team1_abs_amt + new_team2_abs_amt + match.draw_abs_amt;
@@ -39,8 +35,6 @@ export const patchMatch = async (req, match) => {
       draw_rel_amt: new_draw_rel_amt,
     };
   } else if (req.body.betOn === "Draw") {
-    console.log("cond 3");
-
     const new_draw_abs_amt = match.draw_abs_amt + req.body.amount;
     const new_total_abs_amt =
       match.team1_abs_amt + match.team2_abs_amt + new_draw_abs_amt;
@@ -99,7 +93,7 @@ export const ifMatchActive = (match) => {
   return match.status === "ACTIVE";
 };
 
-export const isSchemaValid = (reqBody) => {
+export const isBetSchemaValid = (reqBody) => {
   let errorString = "";
 
   const errors = betSchema.validate(reqBody);

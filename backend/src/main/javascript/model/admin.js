@@ -6,10 +6,14 @@ const AdminSchema = new Schema({
     type: String,
     required: true,
     unique: true,
+    match: [/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/],
   },
   password: {
     type: String,
     required: true,
+    match: [
+      /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{5,}$/,
+    ],
   },
 });
 

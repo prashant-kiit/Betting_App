@@ -1,5 +1,9 @@
 import { Router } from "express";
-import { saveMatch, setMatchStatus } from "../service/adminService.js";
+import {
+  isMatchSchemaValid,
+  saveMatch,
+  setMatchStatus,
+} from "../service/adminService.js";
 
 const router = Router();
 
@@ -8,9 +12,16 @@ const router = Router();
 
 router.post("/createMatch", async (req, res) => {
   try {
+    const schemaValidationErrors = isMatchSchemaValid(req.body);
+
+    if (schemaValidationErrors)
+      return res
+        .status(400)
+        .send(`The data schema is not valid. ${schemaValidationErrors}`);
+
     const matchId = await saveMatch(req);
 
-    return res.status(200).send(matchId);
+    return res.status(201).send(matchId);
   } catch (error) {
     return res.status(500).send(error.message);
   }
