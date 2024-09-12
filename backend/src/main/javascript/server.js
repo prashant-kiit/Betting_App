@@ -1,6 +1,6 @@
 import express from "express";
 import pkg from "express-openid-connect";
-const { auth} = pkg;
+const { auth } = pkg;
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import dbconnect from "./database/database.js";
@@ -22,8 +22,8 @@ const config = {
 
 server.use(
   cors({
-    origin: "http://localhost:8081",
-    credentials: true,
+    origin: "http://localhost:3000",
+    // credentials: true,
   })
 );
 server.use(auth(config));

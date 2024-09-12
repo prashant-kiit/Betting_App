@@ -7,6 +7,7 @@
     "express-openid-connect": "^2.17.1",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.6.1",
+    "nodemon": "^3.1.4",
     "validate": "^5.2.0"
   },
   "scripts": {
