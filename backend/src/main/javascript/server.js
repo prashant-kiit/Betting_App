@@ -8,7 +8,7 @@ import adminLogin from "./route/adminLogin.js";
 import adminAuth from "./middleware/adminAuth.js";
 import adminRoute from "./route/adminRoute.js";
 import userRoute from "./route/userRoute.js";
-
+// master
 const server = express();
 
 const config = {
