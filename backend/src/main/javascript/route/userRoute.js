@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { userAuth } from "../middleware/userAuth.js";
 import {
   getMatch,
   ifLessThanMinimumAmount,

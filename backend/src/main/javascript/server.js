@@ -1,6 +1,5 @@
 import express from "express";
-import pkg from "express-openid-connect";
-const { auth } = pkg;
+import { auth } from "express-oauth2-jwt-bearer";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import dbconnect from "./database/database.js";
@@ -10,6 +9,12 @@ import adminRoute from "./route/adminRoute.js";
 import userRoute from "./route/userRoute.js";
 
 const server = express();
+
+const userAuth = auth({
+  audience: "poiuytrewq",
+  issuerBaseURL: "https://dev-vl5s6zif0qwkov3t.us.auth0.com/",
+  tokenSigningAlg: "RS256",
+});
 
 server.use(
   cors({
