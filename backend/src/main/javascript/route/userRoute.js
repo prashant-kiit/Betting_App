@@ -7,6 +7,8 @@ import {
   ifMatchActive,
   isBetSchemaValid,
   saveUser,
+  isUserSchemaValid,
+  creditMoney,
 } from "../service/userService.js";
 
 const router = Router();
@@ -19,6 +21,23 @@ router.post("/register", async (req, res) => {
     console.log(error);
     return res.status(500).send(error.message);
   }
+});
+
+router.put("/addMoney", async (req, res) => {
+  try {
+    const schemaValidationErrors = isUserSchemaValid(req.body);
+
+    if (schemaValidationErrors)
+      return res
+        .status(400)
+        .send(`The data schema is not valid. ${schemaValidationErrors}`);
+
+    const isMoneyCredited = await creditMoney(req);
+
+    if (!isMoneyCredited) return res.status(400).send("Money not credited");
+
+    return res.status(200).send("Money credited");
+  } catch (error) {}
 });
 
 router.post("/placeBet", async (req, res) => {

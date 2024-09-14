@@ -1,5 +1,6 @@
 import { Types } from "mongoose";
 import betSchema from "../validationSchema/bet.js";
+import userSchema from "../validationSchema/user.js";
 import User from "../model/user.js";
 import Match from "../model/match.js";
 import Bet from "../model/bet.js";
@@ -113,4 +114,33 @@ export const saveUser = async (req) => {
     await user.save();
   }
   return user;
+};
+
+export const creditMoney = async (req) => {
+  const user = await User.findOne({
+    email: req.body.email,
+  });
+
+  await User.findOneAndUpdate(
+    {
+      email: req.body.email,
+    },
+    {
+      wallet: user.wallet + req.body.wallet,
+    }
+  );
+
+  return true;
+};
+
+export const isUserSchemaValid = (reqBody) => {
+  let errorString = "";
+
+  const errors = userSchema.validate(reqBody);
+
+  for (const error of errors) {
+    errorString = errorString + error + " ";
+  }
+
+  return errorString;
 };
