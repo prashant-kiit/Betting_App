@@ -1,26 +1,9 @@
-import axios from "axios";
-import { useMutation } from "@tanstack/react-query";
+import { useAuth0 } from "@auth0/auth0-react";
 import Title from "./Title.jsx";
+import Interface from "./Interface.jsx";
 
 function Dashboard() {
-  const logout = useMutation({
-    mutationFn: async () => {
-      await callLogout();
-    },
-  });
-
-  const callLogout = async () => {
-    const response = await axios.get(
-      "http://localhost:8081/logout"
-      //   , {
-      //   withCredentials: true,
-      //   headers: {
-      //     "Content-Type": "application/json; charset=UTF-8",
-      //   },
-      // }
-    );
-    console.log(response);
-  };
+  const { user, logout } = useAuth0();
 
   return (
     <>
@@ -28,12 +11,11 @@ function Dashboard() {
         <Title pageName={"Dashboard"} />
       </div>
       <div>
-        <p>
-          This is the Dashboard Page of Betting App. Welocme to Betting App.
-        </p>
+        <p>Welcome {user.name}.</p>
+        <Interface />
         <button
           onClick={() => {
-            logout.mutate();
+            logout({ logoutParams: { returnTo: window.location.origin } });
           }}
         >
           Logout

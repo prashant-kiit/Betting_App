@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { userAuth } from "../middleware/userAuth.js";
 import {
   getMatch,
   ifLessThanMinimumAmount,
@@ -11,57 +10,7 @@ import {
 
 const router = Router();
 
-router.get("/status", (req, res) => {
-  try {
-    console.log("Status");
-
-    return res
-      .status(200)
-      .send(req.oidc.isAuthenticated() ? "User logged in" : "User logged out");
-  } catch (error) {
-    return res.status(500).send(error.message);
-  }
-});
-
-// router.get("/signin", (req, res) => {
-//   try {
-//     console.log("Signin");
-//     return res.status(301).redirect("http://localhost:8081/login");
-//   } catch (error) {
-//     return res.status(500).send(error.message);
-//   }
-// });
-
-// router.get("/signout", (req, res) => {
-//   try {
-//     console.log("Signout");
-//     return res.status(301).redirect("http://localhost:8081/logout");
-//   } catch (error) {
-//     return res.status(500).send(error.message);
-//   }
-// });
-
-router.get("/", async (req, res) => {
-  try {
-    console.log("/");
-    if (req.oidc.isAuthenticated()) {
-      // jwt.sign()
-      // res.cookie({});
-      return res.status(301).redirect("http://localhost:8081/app/dashboard");
-    } else {
-      return res.status(301).redirect("http://localhost:8081/app/logout");
-    }
-  } catch (error) {
-    return res.status(500).send(error.message);
-  }
-});
-
-router.get("/test", userAuth, (req, res) => {
-  console.log("Test Done");
-  return res.status(200).send("Test Done");
-});
-
-router.post("/placeBet", userAuth, async (req, res) => {
+router.post("/placeBet", async (req, res) => {
   try {
     const schemaValidationErrors = isBetSchemaValid(req.body);
 
