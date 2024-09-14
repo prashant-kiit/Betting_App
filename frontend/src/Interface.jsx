@@ -8,7 +8,6 @@ function Interface() {
   const placeOrderCall = async () => {
     const token = await getAccessTokenSilently({
       authorizationParams: {
-        redirect_uri: window.location.origin,
         audience: "poiuytrewq",
         scope: "read:all write:all",
       },
@@ -18,8 +17,8 @@ function Interface() {
       "http://localhost:8081/placeBet",
       {
         matchId: "66e02920d67b5a5bd4a2129f",
-        betOn: "US",
-        amount: 100000,
+        betOn: "Russia",
+        amount: 100008,
       },
       {
         headers: {

@@ -22,6 +22,7 @@ server.use(
     credentials: true,
   })
 );
+server.use(userAuth);
 server.use(cookieParser());
 server.use(express.json());
 
