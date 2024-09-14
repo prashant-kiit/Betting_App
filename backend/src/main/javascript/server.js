@@ -22,13 +22,12 @@ server.use(
     credentials: true,
   })
 );
-server.use(userAuth);
 server.use(cookieParser());
 server.use(express.json());
 
 server.use("/admin", adminLogin);
 server.use("/admin", adminAuth, adminRoute);
-server.use(userRoute);
+server.use(userAuth, userRoute);
 
 await dbconnect();
 
