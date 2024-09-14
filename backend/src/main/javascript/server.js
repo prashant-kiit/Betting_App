@@ -27,7 +27,7 @@ server.use(express.json());
 
 server.use("/admin", adminLogin);
 server.use("/admin", adminAuth, adminRoute);
-server.use(userAuth, userRoute);
+server.use(userAuth,userRoute);
 
 await dbconnect();
 

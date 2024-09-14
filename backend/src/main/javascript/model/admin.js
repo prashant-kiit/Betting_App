@@ -15,6 +15,11 @@ const AdminSchema = new Schema({
       /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{5,}$/,
     ],
   },
+  wallet: {
+    type: Number,
+    required: true,
+    default: 0,
+  },
 });
 
 const Admin = model("Admin", AdminSchema);

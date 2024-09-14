@@ -1,5 +1,6 @@
 import { Types } from "mongoose";
 import betSchema from "../validationSchema/bet.js";
+import User from "../model/user.js";
 import Match from "../model/match.js";
 import Bet from "../model/bet.js";
 
@@ -101,4 +102,15 @@ export const isBetSchemaValid = (reqBody) => {
   }
 
   return errorString;
+};
+
+export const saveUser = async (req) => {
+  let user = await User.findOne({ email: req.body.email });
+  if (!user) {
+    user = new User({
+      email: req.body.email,
+    });
+    await user.save();
+  }
+  return user;
 };

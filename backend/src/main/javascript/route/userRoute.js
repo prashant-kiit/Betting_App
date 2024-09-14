@@ -6,9 +6,20 @@ import {
   patchMatch,
   ifMatchActive,
   isBetSchemaValid,
+  saveUser,
 } from "../service/userService.js";
 
 const router = Router();
+
+router.post("/register", async (req, res) => {
+  try {
+    const user = await saveUser(req);
+    return res.status(201).send(user);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send(error.message);
+  }
+});
 
 router.post("/placeBet", async (req, res) => {
   try {
@@ -38,7 +49,7 @@ router.post("/placeBet", async (req, res) => {
 
     const betId = await saveBet(req);
 
-    return res.status(200).send(betId);
+    return res.status(201).send(betId);
   } catch (error) {
     return res.status(500).send(error.message);
   }

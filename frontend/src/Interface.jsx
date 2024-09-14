@@ -13,6 +13,8 @@ function Interface() {
       },
     });
 
+    // console.log(token);
+
     await axios.post(
       "http://localhost:8081/placeBet",
       {

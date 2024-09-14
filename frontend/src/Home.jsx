@@ -11,7 +11,13 @@ function Home() {
       </div>
       <div>
         <p>The Best Place to Bet.</p>
-        <button onClick={() => loginWithRedirect()}>Login</button>
+        <button
+          onClick={async () => {
+            await loginWithRedirect();
+          }}
+        >
+          Login
+        </button>
       </div>
     </>
   );
