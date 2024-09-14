@@ -23,27 +23,34 @@ router.get("/status", (req, res) => {
   }
 });
 
-router.get("/signin", (req, res) => {
-  try {
-    console.log("Signin");
-    return res.status(301).redirect("http://localhost:8081/login");
-  } catch (error) {
-    return res.status(500).send(error.message);
-  }
-});
+// router.get("/signin", (req, res) => {
+//   try {
+//     console.log("Signin");
+//     return res.status(301).redirect("http://localhost:8081/login");
+//   } catch (error) {
+//     return res.status(500).send(error.message);
+//   }
+// });
 
-router.get("/signout", (req, res) => {
-  try {
-    console.log("Signout");
-    return res.status(301).redirect("http://localhost:8081/logout");
-  } catch (error) {
-    return res.status(500).send(error.message);
-  }
-});
+// router.get("/signout", (req, res) => {
+//   try {
+//     console.log("Signout");
+//     return res.status(301).redirect("http://localhost:8081/logout");
+//   } catch (error) {
+//     return res.status(500).send(error.message);
+//   }
+// });
 
-router.get("/", userAuth, async (req, res) => {
+router.get("/", async (req, res) => {
   try {
-    return res.status(301).redirect("http://localhost:8081/app/dashboard");
+    console.log("/");
+    if (req.oidc.isAuthenticated()) {
+      // jwt.sign()
+      // res.cookie({});
+      return res.status(301).redirect("http://localhost:8081/app/dashboard");
+    } else {
+      return res.status(301).redirect("http://localhost:8081/app/logout");
+    }
   } catch (error) {
     return res.status(500).send(error.message);
   }
