@@ -72,14 +72,39 @@ export const getMatch = async (req) => {
   return match;
 };
 
-export const ifLessThanMinimumAmount = (req, match) => {
-  if (req.body.amount < match.minimumAmount) return true;
+export const getUser = async (req) => {
+  const user = await User.findOne({
+    email: req.body.userId,
+  });
+
+  return user;
+};
+
+export const isThisUsersFirstBetOnTheMatch = async (user, match) => {
+  const bet = await Bet.findOne({
+    userId: user.email,
+    matchId: match._id,
+  });
+
+  if (!bet) return true;
+
+  return false;
+};
+
+export const ifMoreThanMinimumAmount = (req, match) => {
+  if (req.body.amount >= match.minimumAmount) return true;
+  return false;
+};
+
+export const isLessThanWallet = (req, user) => {
+  if (req.body.amount <= user.wallet) return true;
   return false;
 };
 
 export const saveBet = async (req) => {
   const bet = new Bet({
-    matchId: req.body.matchId,
+    userId: req.body.userId,
+    matchId: new Types.ObjectId(`${req.body.matchId}`),
     betOn: req.body.betOn,
     amount: req.body.amount,
   });
@@ -103,6 +128,13 @@ export const isBetSchemaValid = (reqBody) => {
   }
 
   return errorString;
+};
+
+export const isTeamValid = (req, match) => {
+  if (req.body.betOn === match.team1) return true;
+  if (req.body.betOn === match.team2) return true;
+  if (req.body.betOn === "Draw") return true;
+  return false;
 };
 
 export const saveUser = async (req) => {
@@ -131,6 +163,17 @@ export const creditMoney = async (req) => {
   );
 
   return true;
+};
+
+export const debitMoney = async (req, user) => {
+  await User.findOneAndUpdate(
+    {
+      email: user.email,
+    },
+    {
+      wallet: user.wallet - req.body.amount,
+    }
+  );
 };
 
 export const isUserSchemaValid = (reqBody) => {

@@ -1,7 +1,11 @@
 import { Router } from "express";
 import {
   getMatch,
-  ifLessThanMinimumAmount,
+  getUser,
+  isTeamValid,
+  isThisUsersFirstBetOnTheMatch,
+  ifMoreThanMinimumAmount,
+  isLessThanWallet,
   saveBet,
   patchMatch,
   ifMatchActive,
@@ -9,6 +13,7 @@ import {
   saveUser,
   isUserSchemaValid,
   creditMoney,
+  debitMoney,
 } from "../service/userService.js";
 
 const router = Router();
@@ -18,7 +23,7 @@ router.post("/register", async (req, res) => {
     const user = await saveUser(req);
     return res.status(201).send(user);
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return res.status(500).send(error.message);
   }
 });
@@ -37,7 +42,10 @@ router.put("/addMoney", async (req, res) => {
     if (!isMoneyCredited) return res.status(400).send("Money not credited");
 
     return res.status(200).send("Money credited");
-  } catch (error) {}
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send(error.message);
+  }
 });
 
 router.post("/placeBet", async (req, res) => {
@@ -49,6 +57,7 @@ router.post("/placeBet", async (req, res) => {
         .status(400)
         .send(`The data schema is not valid. ${schemaValidationErrors}`);
 
+    const user = await getUser(req);
     const match = await getMatch(req);
 
     if (!match) return res.status(404).send("The match is not found");
@@ -56,10 +65,26 @@ router.post("/placeBet", async (req, res) => {
     if (!ifMatchActive(match))
       return res.status(400).send("The match is not active");
 
-    if (ifLessThanMinimumAmount(req, match))
+    if (!isTeamValid(req, match))
       return res
         .status(400)
-        .send(`The bet amount should aleast be ${match.minimumAmount}`);
+        .send(
+          `The team is not valid.Choose between ${match.team1} and ${match.team2}`
+        );
+
+    const isThisUsersFirstBet = await isThisUsersFirstBetOnTheMatch(
+      user,
+      match
+    );
+    if (!isThisUsersFirstBet)
+      return res.status(400).send("You can only bet once on a match.");
+
+    if (!(ifMoreThanMinimumAmount(req, match) && isLessThanWallet(req, user)))
+      return res
+        .status(400)
+        .send(
+          `The bet amount should aleast be ${match.minimumAmount} and should be less than your wallet ${user.wallet}`
+        );
 
     const isPatchingDone = await patchMatch(req, match);
 
@@ -68,8 +93,11 @@ router.post("/placeBet", async (req, res) => {
 
     const betId = await saveBet(req);
 
+    await debitMoney(req, user);
+
     return res.status(201).send(betId);
   } catch (error) {
+    console.error(error);
     return res.status(500).send(error.message);
   }
 });

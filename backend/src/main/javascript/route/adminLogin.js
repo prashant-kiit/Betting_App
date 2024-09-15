@@ -33,6 +33,7 @@ router.get("/login", async (req, res) => {
 
     return res.status(200).send("Admin logged in");
   } catch (error) {
+    console.error(error);
     return res.status(500).send(error.message);
   }
 });

@@ -18,9 +18,10 @@ function Interface() {
     await axios.post(
       "http://localhost:8081/placeBet",
       {
+        userId: user.sub,
         matchId: "66e02920d67b5a5bd4a2129f",
         betOn: "Russia",
-        amount: 100008,
+        amount: 100,
       },
       {
         headers: {

@@ -73,4 +73,20 @@ export const setMatchStatus = async (req, status) => {
       status: status,
     }
   );
+
+  return match.id;
+};
+
+export const updateMatch = async (req) => {
+  const match = await Match.findOneAndUpdate(
+    {
+      _id: new Types.ObjectId(`${req.params.matchId}`),
+    },
+    {
+      team1: req.body.team1,
+      team2: req.body.team2,
+      minimumAmount: req.body.minimumAmount,
+    }
+  );
+  return match.id;
 };
