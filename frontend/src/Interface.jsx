@@ -78,7 +78,7 @@ function Interface() {
           placeOrder.mutate();
         }}
       >
-        Place Order
+        Place Bet
       </button>
       <button
         onClick={() => {

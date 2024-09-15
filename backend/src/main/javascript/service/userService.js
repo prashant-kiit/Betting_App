@@ -64,6 +64,11 @@ export const patchMatch = async (req, match) => {
   return true;
 };
 
+export const getAllMatch = async () => {
+  const matches = await Match.find({});
+  return matches;
+};
+
 export const getMatch = async (req) => {
   const match = await Match.findOne({
     _id: new Types.ObjectId(`${req.body.matchId}`),

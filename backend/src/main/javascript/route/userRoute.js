@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  getAllMatch,
   getMatch,
   getUser,
   isTeamValid,
@@ -22,6 +23,16 @@ router.post("/register", async (req, res) => {
   try {
     const user = await saveUser(req);
     return res.status(201).send(user);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send(error.message);
+  }
+});
+
+router.get("/matches", async (req, res) => {
+  try {
+    const matches = await getAllMatch();
+    return res.status(200).send(matches);
   } catch (error) {
     console.error(error);
     return res.status(500).send(error.message);
