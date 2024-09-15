@@ -4,6 +4,8 @@ import adminSchema from "../validationSchema/admin.js";
 import matchSchema from "../validationSchema/match.js";
 import Admin from "../model/admin.js";
 import Match from "../model/match.js";
+import Bet from "../model/bet.js";
+import User from "../model/user.js";
 
 export const isAdminSchemaValid = (reqQuery) => {
   let errorString = "";
@@ -64,17 +66,17 @@ export const saveMatch = async (req) => {
   return match.id;
 };
 
-export const setMatchStatus = async (req, status) => {
+export const setMatchStatus = async (matchId, status) => {
   const match = await Match.findOneAndUpdate(
     {
-      _id: new Types.ObjectId(`${req.params.id}`),
+      _id: new Types.ObjectId(`${matchId}`),
     },
     {
       status: status,
     }
   );
 
-  return match.id;
+  return true;
 };
 
 export const updateMatch = async (req) => {
@@ -88,5 +90,140 @@ export const updateMatch = async (req) => {
       minimumAmount: req.body.minimumAmount,
     }
   );
-  return match.id;
+  return match;
+};
+
+export const playMatch = (match) => {
+  const winnerNo = Math.floor(Math.random() * 3);
+
+  if (winnerNo === 0) {
+    return match.team1;
+  }
+  if (winnerNo === 1) {
+    return match.team2;
+  }
+  if (winnerNo === 2) {
+    return "Draw";
+  }
+
+  return null;
+};
+
+export const getResult = async (winnerTeam, match) => {
+  console.log(winnerTeam);
+
+  const winners = await getWinners(winnerTeam, match);
+
+  if (winners.length === 0)
+    return {
+      winners: [],
+      amountPerWinner: 0,
+      adminShare: 0,
+    };
+
+  const { moneyPerWinner, adminShare } = getMoneyPerWinnerAndAdminShare(
+    match,
+    winnerTeam
+  );
+
+  return {
+    winners: winners,
+    amountPerWinner: moneyPerWinner,
+    adminShare: adminShare,
+  };
+};
+
+export const getWinners = async (winnerTeam, match) => {
+  const winningBets = await Bet.find({
+    matchId: match.id,
+    betOn: winnerTeam,
+  });
+  console.log(winningBets);
+
+  let winners = [];
+  for (const winningBet of winningBets) {
+    const user = await User.findOne({
+      email: winningBet.userId,
+    });
+
+    winners.push(user);
+  }
+  console.log(winners);
+
+  return winners;
+};
+
+export const getMoneyPerWinnerAndAdminShare = (match, betOn) => {
+  let moneyPerWinner = 0;
+  let adminShare = 0;
+
+  if (betOn === match.team1) {
+    moneyPerWinner =
+      ((match.team2_abs_amt + match.draw_abs_amt) * 0.9) /
+      match.team1_total_bets;
+    adminShare = (match.team2_abs_amt + match.draw_abs_amt) * 0.1;
+  }
+  if (betOn === match.team2) {
+    moneyPerWinner =
+      ((match.team1_abs_amt + match.draw_abs_amt) * 0.9) /
+      match.team2_total_bets;
+    adminShare = (match.team1_abs_amt + match.draw_abs_amt) * 0.1;
+  }
+
+  if (betOn === "Draw") {
+    moneyPerWinner =
+      ((match.team1_abs_amt + match.team2_abs_amt) * 0.9) /
+      match.draw_total_bets;
+    adminShare = (match.team1_abs_amt + match.team2_abs_amt) * 0.1;
+  }
+
+  return { moneyPerWinner, adminShare };
+};
+
+export const distributeMoney = async (
+  winners,
+  amountPerWinner,
+  adminUsername,
+  adminShare
+) => {
+  console.log(amountPerWinner);
+
+  let winnersUpdated = [];
+  for (const winner of winners) {
+    // console.log(winner);
+    const winnerUpdated = await User.findOneAndUpdate(
+      {
+        email: winner.email,
+      },
+      {
+        wallet: winner.wallet + amountPerWinner,
+      },
+      {
+        new: true,
+      }
+    );
+
+    winnersUpdated.push(winnerUpdated);
+  }
+
+  const admin = await Admin.findOne({
+    username: adminUsername,
+  });
+
+  const adminUpdated = await Admin.findOneAndUpdate(
+    {
+      username: adminUsername,
+    },
+    {
+      wallet: admin.wallet + adminShare,
+    },
+    {
+      new: true,
+    }
+  );
+
+  return {
+    winnersUpdated: winnersUpdated,
+    adminUpdated: adminUpdated,
+  };
 };

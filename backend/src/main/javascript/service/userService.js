@@ -7,7 +7,6 @@ import Bet from "../model/bet.js";
 
 export const patchMatch = async (req, match) => {
   let matchPatchBody = {};
-  const new_total_bets = match.total_bets + 1;
 
   if (req.body.betOn === match.team1) {
     const new_team1_abs_amt = match.team1_abs_amt + req.body.amount;
@@ -16,13 +15,14 @@ export const patchMatch = async (req, match) => {
     const new_team1_rel_amt = (new_team1_abs_amt / new_total_abs_amt) * 100;
     const new_team2_rel_amt = (match.team2_abs_amt / new_total_abs_amt) * 100;
     const new_draw_rel_amt = (match.draw_abs_amt / new_total_abs_amt) * 100;
+    const new_team1_total_bets = match.team1_total_bets + 1;
 
     matchPatchBody = {
       team1_abs_amt: new_team1_abs_amt,
       team1_rel_amt: new_team1_rel_amt,
       team2_rel_amt: new_team2_rel_amt,
       draw_rel_amt: new_draw_rel_amt,
-      total_bets: new_total_bets,
+      team1_total_bets: new_team1_total_bets,
     };
   } else if (req.body.betOn === match.team2) {
     const new_team2_abs_amt = match.team2_abs_amt + req.body.amount;
@@ -31,13 +31,14 @@ export const patchMatch = async (req, match) => {
     const new_team1_rel_amt = (match.team1_abs_amt / new_total_abs_amt) * 100;
     const new_team2_rel_amt = (new_team2_abs_amt / new_total_abs_amt) * 100;
     const new_draw_rel_amt = (match.draw_abs_amt / new_total_abs_amt) * 100;
+    const new_team2_total_bets = match.team2_total_bets + 1;
 
     matchPatchBody = {
       team2_abs_amt: new_team2_abs_amt,
       team1_rel_amt: new_team1_rel_amt,
       team2_rel_amt: new_team2_rel_amt,
       draw_rel_amt: new_draw_rel_amt,
-      total_bets: new_total_bets,
+      team2_total_bets: new_team2_total_bets,
     };
   } else if (req.body.betOn === "Draw") {
     const new_draw_abs_amt = match.draw_abs_amt + req.body.amount;
@@ -46,13 +47,14 @@ export const patchMatch = async (req, match) => {
     const new_team1_rel_amt = (match.team1_abs_amt / new_total_abs_amt) * 100;
     const new_team2_rel_amt = (match.team2_abs_amt / new_total_abs_amt) * 100;
     const new_draw_rel_amt = (new_draw_abs_amt / new_total_abs_amt) * 100;
+    const new_draw_total_bets = match.draw_total_bets + 1;
 
     matchPatchBody = {
       draw_abs_amt: new_draw_abs_amt,
       team1_rel_amt: new_team1_rel_amt,
       team2_rel_amt: new_team2_rel_amt,
       draw_rel_amt: new_draw_rel_amt,
-      total_bets: new_total_bets,
+      draw_total_bets: new_draw_total_bets,
     };
   } else {
     return false;
@@ -202,16 +204,19 @@ export const getWinProspects = (match, betOn) => {
 
   if (betOn === match.team1) {
     potentialAmount =
-      ((match.team2_abs_amt + match.draw_abs_amt) * 0.9) / match.total_bets;
+      ((match.team2_abs_amt + match.draw_abs_amt) * 0.9) /
+      (match.team1_total_bets + 1);
   }
   if (betOn === match.team2) {
     potentialAmount =
-      ((match.team1_abs_amt + match.draw_abs_amt) * 0.9) / match.total_bets;
+      ((match.team1_abs_amt + match.draw_abs_amt) * 0.9) /
+      (match.team2_total_bets + 1);
   }
 
   if (betOn === "Draw") {
     potentialAmount =
-      ((match.team1_abs_amt + match.team2_abs_amt) * 0.9) / match.total_bets;
+      ((match.team1_abs_amt + match.team2_abs_amt) * 0.9) /
+      (match.draw_total_bets + 1);
   }
 
   return potentialAmount;

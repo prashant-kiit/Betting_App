@@ -19,7 +19,17 @@ const MatchSchema = new Schema({
     required: true,
     default: "ACTIVE",
   },
-  total_bets: {
+  team1_total_bets: {
+    type: Number,
+    required: true,
+    default: 0,
+  },
+  team2_total_bets: {
+    type: Number,
+    required: true,
+    default: 0,
+  },
+  draw_total_bets: {
     type: Number,
     required: true,
     default: 0,

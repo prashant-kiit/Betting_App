@@ -2,7 +2,8 @@ import jwt from "jsonwebtoken";
 
 const adminAuth = async (req, res, next) => {
   try {
-    jwt.verify(req.cookies.bet_app_admin_token, "XYZ1234");
+    const payload = jwt.verify(req.cookies.bet_app_admin_token, "XYZ1234");
+    req.body.adminUsername = payload.username;
     next();
   } catch (error) {
     res.clearCookie("bet_app_token");
