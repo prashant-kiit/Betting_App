@@ -19,6 +19,11 @@ const MatchSchema = new Schema({
     required: true,
     default: "ACTIVE",
   },
+  total_bets: {
+    type: Number,
+    required: true,
+    default: 0,
+  },
   team1_abs_amt: {
     type: Number,
     required: true,

@@ -7,6 +7,7 @@ import Bet from "../model/bet.js";
 
 export const patchMatch = async (req, match) => {
   let matchPatchBody = {};
+  const new_total_bets = match.total_bets + 1;
 
   if (req.body.betOn === match.team1) {
     const new_team1_abs_amt = match.team1_abs_amt + req.body.amount;
@@ -21,6 +22,7 @@ export const patchMatch = async (req, match) => {
       team1_rel_amt: new_team1_rel_amt,
       team2_rel_amt: new_team2_rel_amt,
       draw_rel_amt: new_draw_rel_amt,
+      total_bets: new_total_bets,
     };
   } else if (req.body.betOn === match.team2) {
     const new_team2_abs_amt = match.team2_abs_amt + req.body.amount;
@@ -35,6 +37,7 @@ export const patchMatch = async (req, match) => {
       team1_rel_amt: new_team1_rel_amt,
       team2_rel_amt: new_team2_rel_amt,
       draw_rel_amt: new_draw_rel_amt,
+      total_bets: new_total_bets,
     };
   } else if (req.body.betOn === "Draw") {
     const new_draw_abs_amt = match.draw_abs_amt + req.body.amount;
@@ -49,6 +52,7 @@ export const patchMatch = async (req, match) => {
       team1_rel_amt: new_team1_rel_amt,
       team2_rel_amt: new_team2_rel_amt,
       draw_rel_amt: new_draw_rel_amt,
+      total_bets: new_total_bets,
     };
   } else {
     return false;
@@ -69,26 +73,26 @@ export const getAllMatch = async () => {
   return matches;
 };
 
-export const getMatch = async (req) => {
+export const getMatch = async (matchId) => {
   const match = await Match.findOne({
-    _id: new Types.ObjectId(`${req.body.matchId}`),
+    _id: new Types.ObjectId(`${matchId}`),
   });
 
   return match;
 };
 
-export const getUser = async (req) => {
+export const getUser = async (userId) => {
   const user = await User.findOne({
-    email: req.body.userId,
+    email: userId,
   });
 
   return user;
 };
 
-export const isThisUsersFirstBetOnTheMatch = async (user, match) => {
+export const isThisUsersFirstBetOnTheMatch = async (userEmail, matchId) => {
   const bet = await Bet.findOne({
-    userId: user.email,
-    matchId: match._id,
+    userId: userEmail,
+    matchId: matchId,
   });
 
   if (!bet) return true;
@@ -96,13 +100,13 @@ export const isThisUsersFirstBetOnTheMatch = async (user, match) => {
   return false;
 };
 
-export const ifMoreThanMinimumAmount = (req, match) => {
-  if (req.body.amount >= match.minimumAmount) return true;
+export const ifMoreThanMinimumAmount = (amount, minimumAmount) => {
+  if (amount >= minimumAmount) return true;
   return false;
 };
 
-export const isLessThanWallet = (req, user) => {
-  if (req.body.amount <= user.wallet) return true;
+export const isLessThanWallet = (amount, userWallet) => {
+  if (amount <= userWallet) return true;
   return false;
 };
 
@@ -119,8 +123,8 @@ export const saveBet = async (req) => {
   return bet.id;
 };
 
-export const ifMatchActive = (match) => {
-  return match.status === "ACTIVE";
+export const ifMatchActive = (matchStatus) => {
+  return matchStatus === "ACTIVE";
 };
 
 export const isBetSchemaValid = (reqBody) => {
@@ -135,10 +139,10 @@ export const isBetSchemaValid = (reqBody) => {
   return errorString;
 };
 
-export const isTeamValid = (req, match) => {
-  if (req.body.betOn === match.team1) return true;
-  if (req.body.betOn === match.team2) return true;
-  if (req.body.betOn === "Draw") return true;
+export const isTeamValid = (betOn, match) => {
+  if (betOn === match.team1) return true;
+  if (betOn === match.team2) return true;
+  if (betOn === "Draw") return true;
   return false;
 };
 
@@ -153,7 +157,7 @@ export const saveUser = async (req) => {
   return user;
 };
 
-export const creditMoney = async (req) => {
+export const creditMoney = async (reqBody) => {
   const user = await User.findOne({
     email: req.body.email,
   });
@@ -191,4 +195,24 @@ export const isUserSchemaValid = (reqBody) => {
   }
 
   return errorString;
+};
+
+export const getWinProspects = (match, betOn) => {
+  let potentialAmount = 0;
+
+  if (betOn === match.team1) {
+    potentialAmount =
+      ((match.team2_abs_amt + match.draw_abs_amt) * 0.9) / match.total_bets;
+  }
+  if (betOn === match.team2) {
+    potentialAmount =
+      ((match.team1_abs_amt + match.draw_abs_amt) * 0.9) / match.total_bets;
+  }
+
+  if (betOn === "Draw") {
+    potentialAmount =
+      ((match.team1_abs_amt + match.team2_abs_amt) * 0.9) / match.total_bets;
+  }
+
+  return potentialAmount;
 };

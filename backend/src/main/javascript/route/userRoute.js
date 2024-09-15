@@ -15,6 +15,7 @@ import {
   isUserSchemaValid,
   creditMoney,
   debitMoney,
+  getWinProspects,
 } from "../service/userService.js";
 
 const router = Router();
@@ -59,6 +60,26 @@ router.put("/addMoney", async (req, res) => {
   }
 });
 
+router.get("/prospect", async (req, res) => {
+  try {
+    const match = await getMatch(req.query.matchId);
+
+    if (!isTeamValid(req.query.betOn, match))
+      return res
+        .status(400)
+        .send(
+          `The team is not valid. Choose between ${match.team1} and ${match.team2}`
+        );
+
+    const potentialAmount = getWinProspects(match, req.query.betOn);
+
+    return res.status(200).send(`${potentialAmount}`);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send(error.message);
+  }
+});
+
 router.post("/placeBet", async (req, res) => {
   try {
     const schemaValidationErrors = isBetSchemaValid(req.body);
@@ -68,29 +89,34 @@ router.post("/placeBet", async (req, res) => {
         .status(400)
         .send(`The data schema is not valid. ${schemaValidationErrors}`);
 
-    const user = await getUser(req);
-    const match = await getMatch(req);
+    const user = await getUser(req.body.userId);
+    const match = await getMatch(req.body.matchId);
 
     if (!match) return res.status(404).send("The match is not found");
 
-    if (!ifMatchActive(match))
+    if (!ifMatchActive(match.status))
       return res.status(400).send("The match is not active");
 
-    if (!isTeamValid(req, match))
+    if (!isTeamValid(req.body.betOn, match))
       return res
         .status(400)
         .send(
-          `The team is not valid.Choose between ${match.team1} and ${match.team2}`
+          `The team is not valid. Choose between ${match.team1} and ${match.team2}`
         );
 
     const isThisUsersFirstBet = await isThisUsersFirstBetOnTheMatch(
-      user,
-      match
+      user.email,
+      match._id
     );
     if (!isThisUsersFirstBet)
       return res.status(400).send("You can only bet once on a match.");
 
-    if (!(ifMoreThanMinimumAmount(req, match) && isLessThanWallet(req, user)))
+    if (
+      !(
+        ifMoreThanMinimumAmount(req.body.amount, match.minimumAmount) &&
+        isLessThanWallet(req.body.amount, user.wallet)
+      )
+    )
       return res
         .status(400)
         .send(
