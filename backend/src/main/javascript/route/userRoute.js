@@ -17,6 +17,8 @@ import {
   debitMoney,
   getWinProspects,
 } from "../service/userService.js";
+import { ClientError } from "../ErrorHandling/SchemaError.js";
+import { MatchInactiveError } from "../ErrorHandling/MatchError.js";
 
 const router = Router();
 
@@ -42,25 +44,23 @@ router.get("/matches", async (req, res) => {
 
 router.put("/addMoney", async (req, res) => {
   try {
-    const schemaValidationErrors = isUserSchemaValid(req.body);
-
-    if (schemaValidationErrors)
-      return res
-        .status(400)
-        .send(`The data schema is not valid. ${schemaValidationErrors}.`);
+    isUserSchemaValid(req.body);
 
     await creditMoney(req);
 
     return res.status(200).send("Money credited.");
   } catch (error) {
     console.error(error);
+    if (error instanceof ClientError) {
+      return res.status(400).send(error.message);
+    }
     return res.status(500).send(error.message);
   }
 });
 
 router.get("/prospect", async (req, res) => {
   try {
-    const match = await getMatch(req.query.matchId);
+    await getMatch(req.query.matchId);
 
     if (!isTeamValid(req.query.betOn, match))
       return res
@@ -74,26 +74,21 @@ router.get("/prospect", async (req, res) => {
     return res.status(200).send(`${potentialAmount}`);
   } catch (error) {
     console.error(error);
+    if (error instanceof MatchNotFound)
+      return res.status(error.httpCode).send(error.message);
     return res.status(500).send(error.message);
   }
 });
 
 router.post("/placeBet", async (req, res) => {
   try {
-    const schemaValidationErrors = isBetSchemaValid(req.body);
-
-    if (schemaValidationErrors)
-      return res
-        .status(400)
-        .send(`The data schema is not valid. ${schemaValidationErrors}.`);
+    isBetSchemaValid(req.body);
 
     const user = await getUser(req.body.userId);
-    const match = await getMatch(req.body.matchId);
+    
+    await getMatch(req.body.matchId);
 
-    if (!match) return res.status(404).send("The match is not found.");
-
-    if (!ifMatchActive(match.status))
-      return res.status(400).send("The match is not active.");
+    ifMatchActive(match.status);
 
     if (!isTeamValid(req.body.betOn, match))
       return res
@@ -133,6 +128,12 @@ router.post("/placeBet", async (req, res) => {
     return res.status(201).send(bet);
   } catch (error) {
     console.error(error);
+    if (error instanceof MatchNotFound)
+      return res.status(error.httpCode).send(error.message);
+    if (error instanceof MatchInactiveError)
+      return res.status(error.httpCode).send(error.message);
+    if (error instanceof ClientError)
+      return res.status(400).send(error.message);
     return res.status(500).send(error.message);
   }
 });

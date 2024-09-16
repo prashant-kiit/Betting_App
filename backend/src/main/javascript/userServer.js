@@ -4,6 +4,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import dbconnect from "./database/database.js";
 import userRoute from "./route/userRoute.js";
+import errorHandler from "./middleware/errorHandler.js";
 
 const server = express();
 
@@ -23,6 +24,8 @@ server.use(cookieParser());
 server.use(express.json());
 
 server.use(userAuth, userRoute);
+
+server.use(errorHandler);
 
 await dbconnect();
 

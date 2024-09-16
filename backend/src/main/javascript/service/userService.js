@@ -4,6 +4,11 @@ import userSchema from "../validationSchema/user.js";
 import User from "../model/user.js";
 import Match from "../model/match.js";
 import Bet from "../model/bet.js";
+import {
+  BetSchemaError,
+  UserSchemaError,
+} from "../ErrorHandling/SchemaError.js";
+import { MatchNotFound } from "../ErrorHandling/MatchError.js";
 
 export const patchMatch = async (req, match) => {
   let matchPatchBody = {};
@@ -81,6 +86,8 @@ export const getMatch = async (matchId) => {
     _id: new Types.ObjectId(`${matchId}`),
   });
 
+  if (!match) throw new MatchNotFound(matchId);
+
   return match;
 };
 
@@ -127,19 +134,9 @@ export const saveBet = async (req) => {
 };
 
 export const ifMatchActive = (matchStatus) => {
-  return matchStatus === "ACTIVE";
-};
-
-export const isBetSchemaValid = (reqBody) => {
-  let errorString = "";
-
-  const errors = betSchema.validate(reqBody);
-
-  for (const error of errors) {
-    errorString = errorString + error + " ";
-  }
-
-  return errorString;
+  const isActive = matchStatus === "ACTIVE";
+  if (!isActive) throw new MatchInactiveError();
+  return true;
 };
 
 export const isTeamValid = (betOn, match) => {
@@ -196,18 +193,6 @@ export const debitMoney = async (req, user) => {
   return userUpdated;
 };
 
-export const isUserSchemaValid = (reqBody) => {
-  let errorString = "";
-
-  const errors = userSchema.validate(reqBody);
-
-  for (const error of errors) {
-    errorString = errorString + error + " ";
-  }
-
-  return errorString;
-};
-
 export const getWinProspects = (match, betOn) => {
   let potentialAmount = 0;
 
@@ -229,4 +214,32 @@ export const getWinProspects = (match, betOn) => {
   }
 
   return potentialAmount;
+};
+
+export const isUserSchemaValid = (reqBody) => {
+  let errorString = "";
+
+  const errors = userSchema.validate(reqBody);
+
+  if (errors.length === 0) return true;
+
+  for (const error of errors) {
+    errorString = errorString + error + " ";
+  }
+
+  throw new UserSchemaError(errorString);
+};
+
+export const isBetSchemaValid = (reqBody) => {
+  let errorString = "";
+
+  const errors = betSchema.validate(reqBody);
+
+  if (errors.length === 0) return true;
+
+  for (const error of errors) {
+    errorString = errorString + error + " ";
+  }
+
+  throw new BetSchemaError(errorString);
 };

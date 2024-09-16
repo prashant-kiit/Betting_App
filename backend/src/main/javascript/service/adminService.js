@@ -6,6 +6,8 @@ import Admin from "../model/admin.js";
 import Match from "../model/match.js";
 import Bet from "../model/bet.js";
 import User from "../model/user.js";
+import { MatchSchemaError } from "../ErrorHandling/SchemaError.js";
+import { MatchNotFound } from "../ErrorHandling/MatchError.js";
 
 export const isAdminSchemaValid = (reqQuery) => {
   let errorString = "";
@@ -47,11 +49,13 @@ export const isMatchSchemaValid = (reqBody) => {
 
   const errors = matchSchema.validate(reqBody);
 
+  if (errors.length == 0) return;
+
   for (const error of errors) {
     errorString = errorString + error + " ";
   }
 
-  return errorString;
+  throw new MatchSchemaError(errorString);
 };
 
 export const saveMatch = async (req) => {
@@ -76,7 +80,9 @@ export const setMatchStatus = async (matchId, status) => {
     }
   );
 
-  return true;
+  if (!match) throw new MatchNotFound(matchId);
+
+  return match;
 };
 
 export const updateMatch = async (req) => {
