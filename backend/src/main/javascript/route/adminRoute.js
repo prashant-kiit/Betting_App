@@ -114,6 +114,7 @@ router.patch("/closeMatch/:id", async (req, res) => {
 router.get("/logout", async (req, res) => {
   try {
     res.clearCookie("bet_app_admin_token");
+    req.body.adminUsername = null;
     return res.status(200).send("Admin logged out.");
   } catch (error) {
     console.error(error);

@@ -12,6 +12,7 @@
     "validate": "^5.2.0"
   },
   "scripts": {
-    "dev": "nodemon ./src/main/javascript/server.js"
+    "dev-admin": "nodemon ./src/main/javascript/adminServer.js",
+    "dev-user": "nodemon ./src/main/javascript/userServer.js"
   }
 }

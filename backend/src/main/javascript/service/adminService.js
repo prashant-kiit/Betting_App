@@ -88,6 +88,9 @@ export const updateMatch = async (req) => {
       team1: req.body.team1,
       team2: req.body.team2,
       minimumAmount: req.body.minimumAmount,
+    },
+    {
+      new: true,
     }
   );
   return match;
