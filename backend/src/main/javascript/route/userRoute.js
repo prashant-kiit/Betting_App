@@ -49,9 +49,7 @@ router.put("/addMoney", async (req, res) => {
         .status(400)
         .send(`The data schema is not valid. ${schemaValidationErrors}.`);
 
-    const isMoneyCredited = await creditMoney(req);
-
-    if (!isMoneyCredited) return res.status(400).send("Money not credited.");
+    await creditMoney(req);
 
     return res.status(200).send("Money credited.");
   } catch (error) {
@@ -128,11 +126,11 @@ router.post("/placeBet", async (req, res) => {
     if (!isPatchingDone)
       return res.status(400).send("The betOn value is invalid.");
 
-    const betId = await saveBet(req);
+    const bet = await saveBet(req);
 
     await debitMoney(req, user);
 
-    return res.status(201).send(betId);
+    return res.status(201).send(bet);
   } catch (error) {
     console.error(error);
     return res.status(500).send(error.message);

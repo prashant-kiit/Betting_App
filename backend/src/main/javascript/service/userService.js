@@ -60,14 +60,15 @@ export const patchMatch = async (req, match) => {
     return false;
   }
 
-  await Match.findOneAndUpdate(
+  const match = await Match.findOneAndUpdate(
     {
       _id: new Types.ObjectId(`${req.body.matchId}`),
     },
-    matchPatchBody
+    matchPatchBody,
+    { new: true }
   );
 
-  return true;
+  return match;
 };
 
 export const getAllMatch = async () => {
@@ -97,9 +98,9 @@ export const isThisUsersFirstBetOnTheMatch = async (userEmail, matchId) => {
     matchId: matchId,
   });
 
-  if (!bet) return true;
+  if (!bet) return null;
 
-  return false;
+  return bet;
 };
 
 export const ifMoreThanMinimumAmount = (amount, minimumAmount) => {
@@ -122,7 +123,7 @@ export const saveBet = async (req) => {
 
   await bet.save();
 
-  return bet.id;
+  return bet;
 };
 
 export const ifMatchActive = (matchStatus) => {
@@ -164,27 +165,35 @@ export const creditMoney = async (reqBody) => {
     email: req.body.email,
   });
 
-  await User.findOneAndUpdate(
+  const userUpdated = await User.findOneAndUpdate(
     {
       email: req.body.email,
     },
     {
       wallet: user.wallet + req.body.wallet,
+    },
+    {
+      new: true,
     }
   );
 
-  return true;
+  return userUpdated;
 };
 
 export const debitMoney = async (req, user) => {
-  await User.findOneAndUpdate(
+  const user = await User.findOneAndUpdate(
     {
       email: user.email,
     },
     {
       wallet: user.wallet - req.body.amount,
+    },
+    {
+      new: true,
     }
   );
+
+  return user;
 };
 
 export const isUserSchemaValid = (reqBody) => {
