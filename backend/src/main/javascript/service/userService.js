@@ -57,10 +57,10 @@ export const patchMatch = async (req, match) => {
       draw_total_bets: new_draw_total_bets,
     };
   } else {
-    return false;
+    return null;
   }
 
-  const match = await Match.findOneAndUpdate(
+  const matchUpdated = await Match.findOneAndUpdate(
     {
       _id: new Types.ObjectId(`${req.body.matchId}`),
     },
@@ -68,7 +68,7 @@ export const patchMatch = async (req, match) => {
     { new: true }
   );
 
-  return match;
+  return matchUpdated;
 };
 
 export const getAllMatch = async () => {
@@ -181,7 +181,7 @@ export const creditMoney = async (reqBody) => {
 };
 
 export const debitMoney = async (req, user) => {
-  const user = await User.findOneAndUpdate(
+  const userUpdated = await User.findOneAndUpdate(
     {
       email: user.email,
     },
@@ -193,7 +193,7 @@ export const debitMoney = async (req, user) => {
     }
   );
 
-  return user;
+  return userUpdated;
 };
 
 export const isUserSchemaValid = (reqBody) => {

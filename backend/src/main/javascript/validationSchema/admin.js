@@ -9,20 +9,12 @@ const adminSchema = new Schema({
   password: {
     type: String,
     required: true,
-    match:
-      /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{5,}$/,
+    // match: /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{5,}$/,
   },
 });
 
 adminSchema.message({
-  match: () => ` 
-Username must be a valid email id. 
-And, Password must follow below rules :
-1. Length: At least 8-16 characters.
-2. Uppercase letter: At least one uppercase letter (A-Z).
-3. Lowercase letter: At least one lowercase letter (a-z).
-4. Number: At least one digit (0-9).
-5. Special character: At least one special character (@, $, !, %, *, ?, &, #).`,
+  match: () => "Username must be a valid email id.",
 });
 
 export default adminSchema;
