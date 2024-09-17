@@ -13,6 +13,7 @@ export default [
         { boolean: false, number: true, string: true },
       ],
       "no-inner-declarations": ["error", "functions"],
+      "no-undef": "off",
     },
   },
   pluginJs.configs.recommended,

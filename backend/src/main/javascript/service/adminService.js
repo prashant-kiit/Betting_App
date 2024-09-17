@@ -60,7 +60,8 @@ export const getAdminToken = (admin) => {
     {
       username: admin.username,
     },
-    "XYZ1234"
+    // eslint-disable-next-line no-undef
+    process.env.DEV_JWT_SECRET_KEY
   );
 
   return token;
@@ -127,8 +128,6 @@ export const playMatch = (match) => {
 };
 
 export const getResult = async (winnerTeam, match) => {
-  console.log(winnerTeam);
-
   const winners = await getWinners(winnerTeam, match);
 
   if (winners.length === 0)
@@ -155,7 +154,6 @@ export const getWinners = async (winnerTeam, match) => {
     matchId: match.id,
     betOn: winnerTeam,
   });
-  console.log(winningBets);
 
   let winners = [];
   for (const winningBet of winningBets) {
@@ -165,7 +163,6 @@ export const getWinners = async (winnerTeam, match) => {
 
     winners.push(user);
   }
-  console.log(winners);
 
   return winners;
 };
@@ -203,8 +200,6 @@ export const distributeMoney = async (
   adminUsername,
   adminShare
 ) => {
-  console.log(amountPerWinner);
-
   let winnersUpdated = [];
   for (const winner of winners) {
     // console.log(winner);

@@ -1,8 +1,13 @@
+import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 
+dotenv.config();
 const adminAuth = async (req, res, next) => {
   try {
-    const payload = jwt.verify(req.cookies.bet_app_admin_token, "XYZ1234");
+    const payload = jwt.verify(
+      req.cookies.bet_app_admin_token,
+      process.env.DEV_JWT_SECRET_KEY
+    );
     req.body.adminUsername = payload.username;
     next();
   } catch (error) {
@@ -10,7 +15,7 @@ const adminAuth = async (req, res, next) => {
     return res
       .status(401)
       .send(
-        "Invalid user. Check if you are Logged in or not. If logged in then check if token is correct or not."
+        `${error.name}. Invalid user. Check if you are Logged in or not. If logged in then check if token is correct or not.`
       );
   }
 };

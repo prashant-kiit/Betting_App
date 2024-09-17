@@ -103,10 +103,7 @@ router.post("/placeBet", async (req, res, next) => {
         user.wallet
       );
 
-    const isPatchingDone = await patchMatch(req, match);
-
-    if (!isPatchingDone)
-      return res.status(400).send("The betOn value is invalid.");
+    await patchMatch(req, match);
 
     const bet = await saveBet(req);
 

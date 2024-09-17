@@ -1,3 +1,4 @@
+import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
@@ -7,11 +8,12 @@ import adminAuth from "./middleware/adminAuth.js";
 import adminRoute from "./route/adminRoute.js";
 import errorHandler from "./middleware/errorHandler.js";
 
+dotenv.config();
 const server = express();
 
 server.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: `http://${process.env.DEV_CLIENT_DOMAIN}:${process.env.DEV_CLIENT_PORT}`,
     credentials: true,
   })
 );
@@ -25,6 +27,12 @@ server.use(errorHandler);
 
 await dbconnect();
 
-server.listen(8080, "localhost", () => {
-  console.log("Admin Server is running on http://localhost:8080");
-});
+server.listen(
+  process.env.DEV_ADMIN_SERVER_PORT,
+  process.env.DEV_ADMIN_SERVER_DOMAIN,
+  () => {
+    console.log(
+      `Admin Server is running on http://${process.env.DEV_ADMIN_SERVER_DOMAIN}:${process.env.DEV_ADMIN_SERVER_PORT}`
+    );
+  }
+);

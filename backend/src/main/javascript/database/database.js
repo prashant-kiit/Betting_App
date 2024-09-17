@@ -1,7 +1,8 @@
+import dotenv from "dotenv";
 import { connect } from "mongoose";
 
-const connection_string =
-  "mongodb+srv://prashantsingh090798:rbQ7B5m0GHVpRSN8@betting-app-cluster0.1v9es.mongodb.net/?retryWrites=true&w=majority&appName=Betting-App-Cluster0";
+dotenv.config();
+const connection_string = `mongodb+srv://${process.env.DEV_MONGODB_USERNAME}:${process.env.DEV_MONGODB_PASSWORD}@betting-app-cluster0.1v9es.mongodb.net/?retryWrites=true&w=majority&appName=Betting-App-Cluster0`;
 
 const dbconnect = async () => {
   try {
