@@ -142,7 +142,10 @@ export const isTeamValid = (betOn, match) => {
   if (betOn === match.team1) return true;
   if (betOn === match.team2) return true;
   if (betOn === "Draw") return true;
-  return false;
+  let a = "123";
+  let b = 123;
+  let c = a === b;
+  return c;
 };
 
 export const saveUser = async (req) => {

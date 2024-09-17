@@ -60,7 +60,7 @@ router.get("/prospect", async (req, res, next) => {
     const match = await getMatch(req.query.matchId);
 
     if (!isTeamValid(req.query.betOn, match))
-      throw new TeamInvalidError(match, betOn);
+      throw new TeamInvalidError(match, req.query.betOn);
 
     const potentialAmount = getWinProspects(match, req.query.betOn);
 
