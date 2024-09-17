@@ -6,25 +6,47 @@ import Admin from "../model/admin.js";
 import Match from "../model/match.js";
 import Bet from "../model/bet.js";
 import User from "../model/user.js";
-import { MatchSchemaError } from "../ErrorHandling/SchemaError.js";
+import {
+  AdminSchemaError,
+  MatchSchemaError,
+} from "../ErrorHandling/SchemaError.js";
 import { MatchNotFound } from "../ErrorHandling/MatchError.js";
+import { AdminNotFound } from "../ErrorHandling/AuthError.js";
 
 export const isAdminSchemaValid = (reqQuery) => {
   let errorString = "";
 
   const errors = adminSchema.validate(reqQuery);
 
+  if (errors.length === 0) return true;
+
   for (const error of errors) {
     errorString = errorString + error + " ";
   }
 
-  return errorString;
+  throw new AdminSchemaError(errorString);
+};
+
+export const isMatchSchemaValid = (reqBody) => {
+  let errorString = "";
+
+  const errors = matchSchema.validate(reqBody);
+
+  if (errors.length === 0) return true;
+
+  for (const error of errors) {
+    errorString = errorString + error + " ";
+  }
+
+  throw new MatchSchemaError(errorString);
 };
 
 export const getAdmin = async (req) => {
   const admin = await Admin.findOne({
     username: req.query.username,
   });
+
+  if (!admin) throw new AdminNotFound(req.query.username);
 
   return admin;
 };
@@ -44,20 +66,6 @@ export const getAdminToken = (admin) => {
   return token;
 };
 
-export const isMatchSchemaValid = (reqBody) => {
-  let errorString = "";
-
-  const errors = matchSchema.validate(reqBody);
-
-  if (errors.length == 0) return;
-
-  for (const error of errors) {
-    errorString = errorString + error + " ";
-  }
-
-  throw new MatchSchemaError(errorString);
-};
-
 export const saveMatch = async (req) => {
   const match = new Match({
     team1: req.body.team1,
@@ -67,7 +75,7 @@ export const saveMatch = async (req) => {
 
   await match.save();
 
-  return match.id;
+  return match;
 };
 
 export const setMatchStatus = async (matchId, status) => {

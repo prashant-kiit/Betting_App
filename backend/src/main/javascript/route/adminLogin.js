@@ -5,23 +5,19 @@ import {
   isPasswordCorrect,
   getAdminToken,
 } from "../service/adminService.js";
+import { PasswordIncorrect } from "../ErrorHandling/AuthError.js";
+
 const router = Router();
 
-router.get("/login", async (req, res) => {
+router.get("/login", async (req, res, next) => {
   try {
-    const schemaValidationErrors = isAdminSchemaValid(req.query);
-
-    if (schemaValidationErrors)
-      return res
-        .status(400)
-        .send(`The data schema is not valid. ${schemaValidationErrors}`);
+    isAdminSchemaValid(req.query);
 
     const admin = await getAdmin(req);
 
-    if (!admin) return res.status(404).send("Username not found");
+    const isPassCorrect = isPasswordCorrect(req, admin);
 
-    if (!isPasswordCorrect(req, admin))
-      return res.status(401).send("Password is incorrect");
+    if (!isPassCorrect) throw new PasswordIncorrect(admin.username);
 
     const token = getAdminToken(admin);
 
@@ -33,8 +29,7 @@ router.get("/login", async (req, res) => {
 
     return res.status(200).send("Admin logged in");
   } catch (error) {
-    console.error(error);
-    return res.status(500).send(error.message);
+    next(error);
   }
 });
 

@@ -1,7 +1,9 @@
-const errorHandler = (error, req, res) => {
-  console.error(error);
-  if (error instanceof MatchNotFound)
-    return res.status(error.httpCode).send(error.message);
+import { ClientError } from "../ErrorHandling/ClientError.js";
+
+const errorHandler = (error, req, res, next) => {
+  if (error instanceof ClientError)
+    return res.status(error.httpCode).send(error.name + ": " + error.message);
+
   return res.status(500).send(error.message);
 };
 

@@ -5,6 +5,7 @@ import dbconnect from "./database/database.js";
 import adminLogin from "./route/adminLogin.js";
 import adminAuth from "./middleware/adminAuth.js";
 import adminRoute from "./route/adminRoute.js";
+import errorHandler from "./middleware/errorHandler.js";
 
 const server = express();
 
@@ -19,6 +20,8 @@ server.use(express.json());
 
 server.use("/admin", adminLogin);
 server.use("/admin", adminAuth, adminRoute);
+
+server.use(errorHandler);
 
 await dbconnect();
 

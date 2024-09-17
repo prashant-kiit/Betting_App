@@ -9,7 +9,8 @@ import {
   distributeMoney,
 } from "../service/adminService.js";
 import { getMatch } from "../service/userService.js";
-import { MatchNotFound } from "../ErrorHandling/MatchError.js";
+import { MatchInactiveError } from "../ErrorHandling/MatchError.js";
+import { NoWinnerError } from "../ErrorHandling/ResultError.js";
 
 const router = Router();
 
@@ -17,15 +18,15 @@ router.post("/createMatch", async (req, res, next) => {
   try {
     isMatchSchemaValid(req.body);
 
-    const matchId = await saveMatch(req);
+    const match = await saveMatch(req);
 
-    return res.status(201).send(matchId);
+    return res.status(201).send(match);
   } catch (error) {
     next(error);
   }
 });
 
-router.patch("/updateMatch/:matchId", async (req, res) => {
+router.patch("/updateMatch/:matchId", async (req, res, next) => {
   try {
     isMatchSchemaValid(req.body);
 
@@ -35,21 +36,17 @@ router.patch("/updateMatch/:matchId", async (req, res) => {
 
     return res.status(200).send(match);
   } catch (error) {
-    console.error(error);
-    if (error instanceof MatchNotFound)
-      return res.status(error.httpCode).send(error.message);
-    return res.status(500).send(error.message);
+    next(error);
   }
 });
 
-router.get("/matchResult/:matchId", async (req, res) => {
+router.get("/matchResult/:matchId", async (req, res, next) => {
   try {
-    await getMatch(req.params.matchId);
+    const match = await getMatch(req.params.matchId);
 
-    if (match.status === "INACTIVE")
-      return res.status(400).send("Match is already inactive.");
+    if (match.status === "INACTIVE") throw new MatchInactiveError(match.id);
 
-    await setMatchStatus(match.id, "INACTIVE");
+    await setMatchStatus(req.params.matchId, "INACTIVE");
 
     const winnerTeam = playMatch(match);
 
@@ -58,10 +55,7 @@ router.get("/matchResult/:matchId", async (req, res) => {
       match
     );
 
-    if (winners.length === 0)
-      return res
-        .status(400)
-        .send("No one won the bet. No money will be distributed.");
+    if (winners.length === 0) throw new NoWinnerError(req.params.matchId);
 
     const { winnersUpdated, adminUpdated } = await distributeMoney(
       winners,
@@ -72,47 +66,37 @@ router.get("/matchResult/:matchId", async (req, res) => {
 
     return res.status(200).send({ winnersUpdated, adminUpdated });
   } catch (error) {
-    console.error(error);
-    if (error instanceof MatchNotFound)
-      return res.status(error.httpCode).send(error.message);
-    return res.status(500).send(error.message);
+    next(error);
   }
 });
 
-router.patch("/openMatch/:id", async (req, res) => {
+router.patch("/openMatch/:id", async (req, res, next) => {
   try {
     await setMatchStatus(req.params.id, "ACTIVE");
 
     return res.status(200).send("Match activated.");
   } catch (error) {
-    console.error(error);
-    if (error instanceof MatchNotFound)
-      return res.status(error.httpCode).send(error.message);
-    return res.status(500).send(error.message);
+    next(error);
   }
 });
 
-router.patch("/closeMatch/:id", async (req, res) => {
+router.patch("/closeMatch/:id", async (req, res, next) => {
   try {
     await setMatchStatus(req.params.id, "INACTIVE");
 
     return res.status(200).send("Match inactivated.");
   } catch (error) {
-    console.error(error);
-    if (error instanceof MatchNotFound)
-      return res.status(error.httpCode).send(error.message);
-    return res.status(500).send(error.message);
+    next(error);
   }
 });
 
-router.get("/logout", async (req, res) => {
+router.get("/logout", async (req, res, next) => {
   try {
     res.clearCookie("bet_app_admin_token");
     req.body.adminUsername = null;
     return res.status(200).send("Admin logged out.");
   } catch (error) {
-    console.error(error);
-    return res.status(500).send(error.message);
+    next(error);
   }
 });
 

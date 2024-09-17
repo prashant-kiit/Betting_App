@@ -17,32 +17,33 @@ import {
   debitMoney,
   getWinProspects,
 } from "../service/userService.js";
-import { ClientError } from "../ErrorHandling/SchemaError.js";
 import { MatchInactiveError } from "../ErrorHandling/MatchError.js";
+import {
+  NotTheFirstBetError,
+  TeamInvalidError,
+} from "../ErrorHandling/ResultError.js";
 
 const router = Router();
 
-router.post("/register", async (req, res) => {
+router.post("/register", async (req, res, next) => {
   try {
     const user = await saveUser(req);
     return res.status(201).send(user);
   } catch (error) {
-    console.error(error);
-    return res.status(500).send(error.message);
+    next(error);
   }
 });
 
-router.get("/matches", async (req, res) => {
+router.get("/matches", async (req, res, next) => {
   try {
     const matches = await getAllMatch();
     return res.status(200).send(matches);
   } catch (error) {
-    console.error(error);
-    return res.status(500).send(error.message);
+    next(error);
   }
 });
 
-router.put("/addMoney", async (req, res) => {
+router.put("/addMoney", async (req, res, next) => {
   try {
     isUserSchemaValid(req.body);
 
@@ -50,59 +51,45 @@ router.put("/addMoney", async (req, res) => {
 
     return res.status(200).send("Money credited.");
   } catch (error) {
-    console.error(error);
-    if (error instanceof ClientError) {
-      return res.status(400).send(error.message);
-    }
-    return res.status(500).send(error.message);
+    next(error);
   }
 });
 
-router.get("/prospect", async (req, res) => {
+router.get("/prospect", async (req, res, next) => {
   try {
-    await getMatch(req.query.matchId);
+    const match = await getMatch(req.query.matchId);
 
     if (!isTeamValid(req.query.betOn, match))
-      return res
-        .status(400)
-        .send(
-          `The team is not valid. Choose between ${match.team1} and ${match.team2}.`
-        );
+      throw new TeamInvalidError(match, betOn);
 
     const potentialAmount = getWinProspects(match, req.query.betOn);
 
     return res.status(200).send(`${potentialAmount}`);
   } catch (error) {
-    console.error(error);
-    if (error instanceof MatchNotFound)
-      return res.status(error.httpCode).send(error.message);
-    return res.status(500).send(error.message);
+    next(error);
   }
 });
 
-router.post("/placeBet", async (req, res) => {
+router.post("/placeBet", async (req, res, next) => {
   try {
     isBetSchemaValid(req.body);
 
     const user = await getUser(req.body.userId);
-    
-    await getMatch(req.body.matchId);
 
-    ifMatchActive(match.status);
+    const match = await getMatch(req.body.matchId);
+
+    const isMatchActive = ifMatchActive(match.status);
+
+    if (!isMatchActive) throw new MatchInactiveError(req.body.matchId);
 
     if (!isTeamValid(req.body.betOn, match))
-      return res
-        .status(400)
-        .send(
-          `The team is not valid. Choose between ${match.team1} and ${match.team2}.`
-        );
+      throw new TeamInvalidError(match, req.body.betOn);
 
     const isThisUsersFirstBet = await isThisUsersFirstBetOnTheMatch(
       user.email,
       match._id
     );
-    if (!isThisUsersFirstBet)
-      return res.status(400).send("You can only bet once on a match.");
+    if (!isThisUsersFirstBet) throw new NotTheFirstBetError(req.body.matchId);
 
     if (
       !(
@@ -110,11 +97,11 @@ router.post("/placeBet", async (req, res) => {
         isLessThanWallet(req.body.amount, user.wallet)
       )
     )
-      return res
-        .status(400)
-        .send(
-          `The bet amount should aleast be ${match.minimumAmount} and should be less than your wallet ${user.wallet}.`
-        );
+      throw new NotTheFirstBetError(
+        req.body.matchId,
+        match.minimumAmount,
+        user.wallet
+      );
 
     const isPatchingDone = await patchMatch(req, match);
 
@@ -127,14 +114,7 @@ router.post("/placeBet", async (req, res) => {
 
     return res.status(201).send(bet);
   } catch (error) {
-    console.error(error);
-    if (error instanceof MatchNotFound)
-      return res.status(error.httpCode).send(error.message);
-    if (error instanceof MatchInactiveError)
-      return res.status(error.httpCode).send(error.message);
-    if (error instanceof ClientError)
-      return res.status(400).send(error.message);
-    return res.status(500).send(error.message);
+    next(error);
   }
 });
 

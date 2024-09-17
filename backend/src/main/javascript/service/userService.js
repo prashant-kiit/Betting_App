@@ -9,6 +9,7 @@ import {
   UserSchemaError,
 } from "../ErrorHandling/SchemaError.js";
 import { MatchNotFound } from "../ErrorHandling/MatchError.js";
+import { TeamInvalidError } from "../ErrorHandling/ResultError.js";
 
 export const patchMatch = async (req, match) => {
   let matchPatchBody = {};
@@ -62,7 +63,7 @@ export const patchMatch = async (req, match) => {
       draw_total_bets: new_draw_total_bets,
     };
   } else {
-    return null;
+    throw new TeamInvalidError(match, req.body.betOn);
   }
 
   const matchUpdated = await Match.findOneAndUpdate(
@@ -105,9 +106,9 @@ export const isThisUsersFirstBetOnTheMatch = async (userEmail, matchId) => {
     matchId: matchId,
   });
 
-  if (!bet) return null;
+  if (!bet) return false;
 
-  return bet;
+  return true;
 };
 
 export const ifMoreThanMinimumAmount = (amount, minimumAmount) => {
@@ -134,9 +135,7 @@ export const saveBet = async (req) => {
 };
 
 export const ifMatchActive = (matchStatus) => {
-  const isActive = matchStatus === "ACTIVE";
-  if (!isActive) throw new MatchInactiveError();
-  return true;
+  return matchStatus === "ACTIVE";
 };
 
 export const isTeamValid = (betOn, match) => {
@@ -159,15 +158,15 @@ export const saveUser = async (req) => {
 
 export const creditMoney = async (reqBody) => {
   const user = await User.findOne({
-    email: req.body.email,
+    email: reqBody.email,
   });
 
   const userUpdated = await User.findOneAndUpdate(
     {
-      email: req.body.email,
+      email: reqBody.email,
     },
     {
-      wallet: user.wallet + req.body.wallet,
+      wallet: user.wallet + reqBody.wallet,
     },
     {
       new: true,
