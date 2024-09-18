@@ -1,3 +1,5 @@
+import console from "console";
+import process from "process";
 import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";

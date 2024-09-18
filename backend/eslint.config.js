@@ -3,6 +3,7 @@ import pluginJs from "@eslint/js";
 export default [
   {
     rules: {
+      "no-undef": "error",
       "no-var": "error",
       quotes: ["error", "double"],
       semi: ["error", "always"],
@@ -13,7 +14,6 @@ export default [
         { boolean: false, number: true, string: true },
       ],
       "no-inner-declarations": ["error", "functions"],
-      "no-undef": "off",
     },
   },
   pluginJs.configs.recommended,

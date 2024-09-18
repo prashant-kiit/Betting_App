@@ -40,7 +40,9 @@ export class NotTheFirstBetError extends ResultError {
 
 export class BettingAmountInvalid extends ResultError {
   constructor(matchId, matchMinimumAmount, userWallet) {
-    super(`For ${matchId}. The betting amount is invalid.The bet amount should aleast be ${matchMinimumAmount} and should be less than your wallet ${userWallet}.`);
+    super(
+      `For ${matchId}. The betting amount is invalid.The bet amount should aleast be ${matchMinimumAmount} and should be less than your wallet ${userWallet}.`
+    );
     this.name = this.constructor.name;
     Error.captureStackTrace(this, this.constructor);
     this.httpCode = 400;
