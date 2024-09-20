@@ -2,6 +2,7 @@ import { Schema as _Schema, model } from "mongoose";
 const Schema = _Schema;
 
 const BetSchema = new Schema({
+  
   userId: {
     type: String,
     required: true,

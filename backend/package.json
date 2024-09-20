@@ -14,8 +14,10 @@
     "validate": "^5.2.0"
   },
   "scripts": {
-    "dev-admin": "nodemon ./src/main/javascript/adminServer.js",
-    "dev-user": "nodemon ./src/main/javascript/userServer.js"
+    "dev-admin": "ENV=dev nodemon ./src/main/javascript/adminServer.js",
+    "dev-user": "ENV=dev nodemon ./src/main/javascript/userServer.js",
+    "prod-admin": "ENV=prod nodemon ./src/main/javascript/adminServer.js",
+    "prod-user": "ENV=prod nodemon ./src/main/javascript/userServer.js"
   },
   "devDependencies": {
     "@eslint/js": "^9.10.0",

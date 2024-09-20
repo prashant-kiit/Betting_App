@@ -9,18 +9,19 @@ import dbconnect from "./database/database.js";
 import userRoute from "./route/userRoute.js";
 import errorHandler from "./middleware/errorHandler.js";
 
-dotenv.config();
+dotenv.config({ path: `.env-${process.env.ENV}` });
+
 const server = express();
 
 const userAuth = auth({
-  audience: process.env.DEV_AUDIENCE,
-  issuerBaseURL: process.env.DEV_ISSUERBASEURL,
-  tokenSigningAlg: process.env.DEV_SIGNALG,
+  audience: process.env.AUDIENCE,
+  issuerBaseURL: process.env.ISSUERBASEURL,
+  tokenSigningAlg: process.env.SIGNALG,
 });
 
 server.use(
   cors({
-    origin: `http://${process.env.DEV_CLIENT_DOMAIN}:${process.env.DEV_CLIENT_PORT}`,
+    origin: `http://${process.env.CLIENT_DOMAIN}:${process.env.CLIENT_PORT}`,
     credentials: true,
   })
 );
@@ -34,11 +35,11 @@ server.use(errorHandler);
 await dbconnect();
 
 server.listen(
-  process.env.DEV_USER_SERVER_PORT,
-  process.env.DEV_USER_SERVER_DOMAIN,
+  process.env.USER_SERVER_PORT,
+  process.env.USER_SERVER_DOMAIN,
   () => {
     console.log(
-      `User Server is running on http://${process.env.DEV_USER_SERVER_DOMAIN}:${process.env.DEV_USER_SERVER_PORT}`
+      `User Server is running on http://${process.env.USER_SERVER_DOMAIN}:${process.env.USER_SERVER_PORT}`
     );
   }
 );

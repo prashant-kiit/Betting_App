@@ -171,6 +171,26 @@ export const getMoneyPerWinnerAndAdminShare = (match, betOn) => {
   let moneyPerWinner = 0;
   let adminShare = 0;
 
+// u3 = 200 
+// u1 = 100, u2 = 50, u3, u4  
+// a : 150, b : 100, draw : 100
+// a won
+// u1 = 100 + ?, ad = 20, 
+// u2 = 50 + ?, ad = 20, 
+// case 1
+// 0.90 * 200, 0.90 * 200 
+// case 2
+// 100/150 * 0.90 * 200 , 50/150 * 0.90 * 200 
+
+// a : 150, b : 100, draw : 100
+// a won
+// u1 = 100 + ?, ad = 20, 
+// u2 = 50 + ?, ad = 20, 
+// case 1
+// 0.90 * 200, 0.90 * 200 
+// case 2
+// 100/150 * 0.90 * 200 , 50/150 * 0.90 * 200 
+
   if (betOn === match.team1) {
     moneyPerWinner =
       ((match.team2_abs_amt + match.draw_abs_amt) * 0.9) /

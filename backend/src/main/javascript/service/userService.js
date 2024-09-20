@@ -195,6 +195,7 @@ export const debitMoney = async (req, user) => {
 export const getWinProspects = (match, betOn) => {
   let potentialAmount = 0;
 
+  // 100
   if (betOn === match.team1) {
     potentialAmount =
       ((match.team2_abs_amt + match.draw_abs_amt) * 0.9) /

@@ -2,12 +2,12 @@ import process from "process";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 
-dotenv.config();
+dotenv.config({ path: `../resources/.env-${process.env.ENV}` });
 const adminAuth = async (req, res, next) => {
   try {
     const payload = jwt.verify(
       req.cookies.bet_app_admin_token,
-      process.env.DEV_JWT_SECRET_KEY
+      process.env.JWT_SECRET_KEY
     );
     req.body.adminUsername = payload.username;
     next();

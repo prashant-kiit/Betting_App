@@ -1,6 +1,7 @@
 import console from "console";
 import process from "process";
 import dotenv from "dotenv";
+dotenv.config({ path: `.env-${process.env.ENV}` });
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
@@ -10,12 +11,11 @@ import adminAuth from "./middleware/adminAuth.js";
 import adminRoute from "./route/adminRoute.js";
 import errorHandler from "./middleware/errorHandler.js";
 
-dotenv.config();
 const server = express();
 
 server.use(
   cors({
-    origin: `http://${process.env.DEV_CLIENT_DOMAIN}:${process.env.DEV_CLIENT_PORT}`,
+    origin: `http://${process.env.CLIENT_DOMAIN}:${process.env.CLIENT_PORT}`,
     credentials: true,
   })
 );
@@ -30,11 +30,11 @@ server.use(errorHandler);
 await dbconnect();
 
 server.listen(
-  process.env.DEV_ADMIN_SERVER_PORT,
-  process.env.DEV_ADMIN_SERVER_DOMAIN,
+  process.env.ADMIN_SERVER_PORT,
+  process.env.ADMIN_SERVER_DOMAIN,
   () => {
     console.log(
-      `Admin Server is running on http://${process.env.DEV_ADMIN_SERVER_DOMAIN}:${process.env.DEV_ADMIN_SERVER_PORT}`
+      `Admin Server is running on http://${process.env.ADMIN_SERVER_DOMAIN}:${process.env.ADMIN_SERVER_PORT}`
     );
   }
 );
