@@ -1,12 +1,16 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
-import Title from "./Title.jsx";
-import Interface from "./Interface.jsx";
-import { useEffect } from "react";
+import Title from "./Title";
+import Interface from "./Interface";
+import { useEffect, useState } from "react";
+// import DashboardBody from "./DashboardBody.jsx";
 
 function Dashboard() {
+  console.log("Dashboard Running");
+  const [count, setCount] = useState(0);
   const { user, logout, getAccessTokenSilently } = useAuth0();
+  // eslint-disable-next-line no-unused-vars
   const registerUser = useMutation({
     mutationFn: async () => {
       await registerUserCall();
@@ -39,7 +43,7 @@ function Dashboard() {
   };
 
   useEffect(() => {
-    registerUser.mutate();
+    // registerUser.mutate();
   }, []);
 
   return (
@@ -56,6 +60,15 @@ function Dashboard() {
           }}
         >
           Logout
+        </button>
+        {/* <DashboardBody />*/}
+        <p>{count}</p>
+        <button
+          onClick={() => {
+            setCount((count) => count + 1);
+          }}
+        >
+          Increment
         </button>
       </div>
     </>

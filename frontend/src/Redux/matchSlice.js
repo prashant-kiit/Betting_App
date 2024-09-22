@@ -1,6 +1,6 @@
-import { configureSlices } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
 
-const matchSlice = configureSlices({
+const matchSlice = createSlice({
   name: "match",
   initialState: {
     matches: [],
@@ -17,5 +17,5 @@ const matchSlice = configureSlices({
   },
 });
 
-export default matchSlice.reducers;
+export default matchSlice.reducer;
 export const { postMatch, deleteMatch } = matchSlice.actions;

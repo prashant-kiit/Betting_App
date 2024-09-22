@@ -1,5 +1,5 @@
 import { useAuth0 } from "@auth0/auth0-react";
-import Title from "./Title.jsx";
+import Title from "./Title";
 
 function Home() {
   const { loginWithRedirect } = useAuth0();
