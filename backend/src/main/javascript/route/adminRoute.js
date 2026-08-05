@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import { Router } from "express";
 import {
   isMatchSchemaValid,
@@ -11,6 +12,7 @@ import {
 import { getMatch } from "../service/userService.js";
 import { MatchInactiveError } from "../ErrorHandling/MatchError.js";
 import { NoWinnerError } from "../ErrorHandling/ResultError.js";
+import Match from "../model/match.js";
 
 const router = Router();
 
@@ -97,6 +99,20 @@ router.get("/logout", async (req, res, next) => {
     return res.status(200).send("Admin logged out.");
   } catch (error) {
     next(error);
+  }
+});
+
+// read, curl /match/1234
+router.get("/matches/:matchId", async (req, res) => {
+  // Number(req.params.matchId)
+  try {
+    const match = await Match.findOne({
+      _id: new Types.ObjectId(req.params.matchId),
+    });
+    if (!match) throw new Error("Match not found");
+    return res.status(200).send(match);
+  } catch (error) {
+    return res.status(404).send(error.message);
   }
 });
 

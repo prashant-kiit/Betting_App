@@ -23,7 +23,7 @@ server.use(cookieParser());
 server.use(express.json());
 
 server.use("/admin", adminLogin);
-server.use("/admin", adminAuth, adminRoute);
+server.use("/admin", adminRoute);
 
 server.use(errorHandler);
 
